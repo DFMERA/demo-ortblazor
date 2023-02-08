@@ -33,6 +33,7 @@ In the web application open the menu tab "Ort Blazor"
 Select the image of a dog located in the same project **demo-ortblazor/SampleImg/dog.jpeg**
 
 if the project runs successfully it should show the next result:
+```
 Golden Retriever	0.7550826
 Kuvasz	0.1418474
 Clumber Spaniel	0.02673398
@@ -43,6 +44,7 @@ Labrador Retriever	0.004976533
 Saluki	0.0046295193
 Tibetan Terrier	0.004320859
 English Setter	0.003663472
+```
 
 ## Colaboration
 This project was based on the [onnxruntime-csharp-cv-template](https://github.com/microsoft/onnxruntime-csharp-cv-template) and updated for .NET 6
