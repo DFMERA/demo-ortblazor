@@ -1,0 +1,82 @@
+@page "/ortblazor"
+
+@using Microsoft.ML.OnnxRuntime;
+@using demo_ortblazor.Data;
+@using demo_ortblazor.Util;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+
+<h1>Clasificar Imágenes con Onnixruntime</h1>
+
+<div class="input-group">
+	<div class="custom-file">
+		<InputFile class="custom-file-input" multiple OnChange="OnChange" accept="image/png, image/jpeg, image/gif" id="inputFile" />
+		<label class="custom-file-label" for="inputFile">Choose file</label>
+	</div>
+	<div class="input-group-append">
+		<button class="btn btn-success" @onclick="Predict" disabled="@isDisabled">Classify image</button>
+	</div>
+</div>
+
+@foreach (var item in filesBase64)
+{
+	<img src="data:@item.contentType;base64,@item.base64data" />
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Label</th>
+            <th>Confidence</th>
+        </tr>
+    </thead>
+    @foreach (var t in top10)
+    {
+        <tr>
+            <td>@t.Label</td>
+            <td>@t.Confidence</td>
+        </tr>
+    }
+</table>
+
+@code {
+	public List<ImageFile> filesBase64 = new List<ImageFile>();
+	string message = "InputFile";
+	bool isDisabled = false;
+
+	async Task OnChange(InputFileChangeEventArgs e)
+	{
+		var files = e.GetMultipleFiles(); // get the files selected by the users
+		foreach(var file in files)
+		{
+			var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+			var buf = new byte[resizedFile.Size]; // allocate a buffer to fill with the file's data
+			using (var stream = resizedFile.OpenReadStream())
+			{
+				await stream.ReadAsync(buf); // copy the stream to the buffer
+			}
+			filesBase64.Add(new ImageFile { base64data = Convert.ToBase64String(buf), contentType = file.ContentType, fileName = file.Name }); // convert to a base64 string!!
+		}
+		message = "Click to continue ->";
+	}
+}
+
+@code {
+
+    private List<Prediction> top10 = new List<Prediction> { new Prediction { Label = "Label Ejemplo", Confidence = 0.0f }};
+    private void Predict()
+    {
+        string modelFilePath = @"Model/resnet50v2.onnx";
+        //string imageFilePath = @"/Users/diegomera/repos/demo-ortcsharp/data/dog.jpeg";
+        //Microsoft.ML.OnnxRuntime.Tensors.Tensor<float> input = ImageHelper.GetImageTensorFromPath(imageFilePath);
+        Microsoft.ML.OnnxRuntime.Tensors.Tensor<float> input = ImageHelper.GetImageTensorFromString(filesBase64.First().base64data);
+        top10 = ModelHelper.GetPredictions(input, modelFilePath);
+
+        // Print results to console
+        foreach (var t in top10)
+        {
+            Console.WriteLine($"Label: {t.Label}, Confidence: {t.Confidence}");
+        }
+    }    
+}
