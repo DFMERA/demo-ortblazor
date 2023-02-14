@@ -48,3 +48,6 @@ English Setter	0.003663472
 
 ## Colaboration
 This project was based on the [onnxruntime-csharp-cv-template](https://github.com/microsoft/onnxruntime-csharp-cv-template) and updated for .NET 6
+
+## Blog post
+More details about the code can be found in this blog post: [acelera.tech](https://acelera.tech/2023/02/14/machine-learning-clasificar-imagenes-usando-onnx-runtime-y-blazor/)
